@@ -9,7 +9,7 @@ Feel free to open issues or submit pull requests.
 
 ## Usage
 - Extract the files from the archive
-- Copy your YAML configuration files to the "config" directory
+- Copy your YAML configuration files to the "configs" directory
 - Run MihomoLauncher.exe
 - Select a core and click the "Download" button
 - Select a configuration and click the "Start" button

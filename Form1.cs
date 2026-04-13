@@ -23,7 +23,8 @@ namespace MihomoLauncher
         private const string RegistryPath = @"Software\MihomoLauncher";
         private const string StartupPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
         private const string AppName = "MihomoLauncher";
-        private const string ExeName = "mihomo-windows-amd64-v3.exe";
+        private string ExeName = "mihomo-windows-amd64-v{cpu}.exe";
+        private string Url = "https://github.com/MetaCubeX/mihomo/releases/download/{version}/mihomo-windows-amd64-v{cpu}-{version}.zip";
 
         private Process _mihomoProcess;
         private DateTime _startTime;
@@ -35,11 +36,7 @@ namespace MihomoLauncher
 
         public MainForm()
         {
-            if (Environment.OSVersion.Version.Major < 10)
-            {
-                MessageBox.Show("Windows versions older that 10 are not supported and may not work properly!");
-            }
-
+            CheckSystemRequirements();
             InitializeComponent();
             SetupTrayIcon();
             SetupCustomCombo();
@@ -47,6 +44,18 @@ namespace MihomoLauncher
 
             _statusTimer = new Timer { Interval = 1000 };
             _statusTimer.Tick += (s, e) => UpdateStatus();
+        }
+
+        private void CheckSystemRequirements()
+        {
+            if (Environment.OSVersion.Version.Major < 10)
+            {
+                MessageBox.Show("Windows versions older that 10 are not supported and may not work properly!");
+            }
+
+            string _sCpuFeatureLevel = CpuChecker.GetCpuLevel().ToString();
+            ExeName = ExeName.Replace("{cpu}", _sCpuFeatureLevel);
+            Url = Url.Replace("{cpu}", _sCpuFeatureLevel);
         }
 
         private void InitializeFolders()
@@ -197,7 +206,7 @@ namespace MihomoLauncher
             _statusTimer.Stop();
 
             string version = cmbCores.SelectedItem.ToString();
-            string url = $"https://github.com/MetaCubeX/mihomo/releases/download/{version}/mihomo-windows-amd64-v3-{version}.zip";
+            string url = Url.Replace("{version}", version);
 
             btnDownload.Enabled = false;
             cmbCores.Enabled = false;
@@ -286,7 +295,13 @@ namespace MihomoLauncher
         {
             if (_mihomoProcess != null)
             {
-                try { _mihomoProcess.Kill(); } catch { }
+                try 
+                { 
+                    _mihomoProcess.Kill(); 
+                }
+                catch (Exception ex) { Log($"Cannot kill core process: {ex.Message}"); }
+
+                _mihomoProcess = null;
                 Log("Core stopped.");
             }
         }
@@ -299,7 +314,11 @@ namespace MihomoLauncher
 
             foreach (var p in processes)
             {
-                try { p.Kill(); } catch { }
+                try
+                { 
+                    p.Kill(); 
+                } 
+                catch (Exception ex) { Log($"Cannot kill process {p.ProcessName}: {ex.Message}"); }
             }
         }
         #endregion
@@ -341,11 +360,13 @@ namespace MihomoLauncher
             if (isRunning)
             {
                 status = $"🟢 Running ({DateTime.Now - _startTime:mm\\:ss})";
+                _trayIcon.Icon = Properties.Resources.Meta_active;
                 btnStart.Text = "STOP";
             }
             else
             {
                 status = "🔴 Stopped";
+                _trayIcon.Icon = Properties.Resources.Meta;
                 btnStart.Text = "START";
                 cmbCores.Enabled = true;
                 cmbConfigs.Enabled = true;
@@ -390,6 +411,7 @@ namespace MihomoLauncher
         {
             txtLog.Clear();
         }
+
         private void chkAutoStart_CheckedChanged(object sender, EventArgs e)
         {
             SaveSettings();
