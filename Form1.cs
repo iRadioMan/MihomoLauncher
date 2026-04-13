@@ -30,6 +30,8 @@ namespace MihomoLauncher
         private DateTime _startTime;
         private Timer _statusTimer;
         private NotifyIcon _trayIcon;
+        private string _status;
+        private bool _isRunning;
 
         private Dictionary<string, bool> _versions = new Dictionary<string, bool>();
         private string latestVersion;
@@ -288,6 +290,8 @@ namespace MihomoLauncher
             _mihomoProcess.BeginErrorReadLine();
 
             _startTime = DateTime.Now;
+            btnStart.Text = "STOP";
+            _trayIcon.Icon = Properties.Resources.Meta_active;
             Log("Core started.");
         }
 
@@ -302,6 +306,10 @@ namespace MihomoLauncher
                 catch (Exception ex) { Log($"Cannot kill core process: {ex.Message}"); }
 
                 _mihomoProcess = null;
+                btnStart.Text = "START";
+                cmbCores.Enabled = true;
+                cmbConfigs.Enabled = true;
+                _trayIcon.Icon = Properties.Resources.Meta;
                 Log("Core stopped.");
             }
         }
@@ -354,27 +362,19 @@ namespace MihomoLauncher
 
         private void UpdateStatus()
         {
-            bool isRunning = _mihomoProcess != null && !_mihomoProcess.HasExited;
-            string status;
+            _isRunning = _mihomoProcess != null && !_mihomoProcess.HasExited;
 
-            if (isRunning)
+            if (_isRunning)
             {
-                status = $"🟢 Running ({DateTime.Now - _startTime:mm\\:ss})";
-                _trayIcon.Icon = Properties.Resources.Meta_active;
-                btnStart.Text = "STOP";
+                _status = $"🟢 Running ({DateTime.Now - _startTime:mm\\:ss})";
             }
             else
             {
-                status = "🔴 Stopped";
-                _trayIcon.Icon = Properties.Resources.Meta;
-                btnStart.Text = "START";
-                cmbCores.Enabled = true;
-                cmbConfigs.Enabled = true;
+                _status = "🔴 Stopped";
             }
 
-            this.Text = $"Mihomo Launcher | {status}";
-
-            _trayIcon.Text = $"Mihomo Launcher\nCore: {cmbCores.SelectedItem}\nStatus: {status}";
+            this.Text = $"Mihomo Launcher | {_status}";
+            _trayIcon.Text = $"Mihomo Launcher\nCore: {cmbCores.SelectedItem}\nStatus: {_status}";
         }
 
         private void UpdateButtons()
