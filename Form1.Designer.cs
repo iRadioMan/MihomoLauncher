@@ -38,6 +38,7 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.txtLog = new System.Windows.Forms.RichTextBox();
+            this.btnEdit = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -73,7 +74,7 @@
             this.cmbConfigs.FormattingEnabled = true;
             this.cmbConfigs.Location = new System.Drawing.Point(71, 86);
             this.cmbConfigs.Name = "cmbConfigs";
-            this.cmbConfigs.Size = new System.Drawing.Size(404, 28);
+            this.cmbConfigs.Size = new System.Drawing.Size(284, 28);
             this.cmbConfigs.TabIndex = 4;
             this.cmbConfigs.SelectedIndexChanged += new System.EventHandler(this.cmbConfigs_SelectedIndexChanged);
             // 
@@ -114,6 +115,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.btnEdit);
             this.groupBox1.Controls.Add(this.cmbConfigs);
             this.groupBox1.Controls.Add(this.cmbCores);
             this.groupBox1.Controls.Add(this.btnDownload);
@@ -152,6 +154,17 @@
             this.txtLog.TabIndex = 10;
             this.txtLog.Text = "";
             // 
+            // btnEdit
+            // 
+            this.btnEdit.Enabled = false;
+            this.btnEdit.Location = new System.Drawing.Point(370, 86);
+            this.btnEdit.Name = "btnEdit";
+            this.btnEdit.Size = new System.Drawing.Size(105, 28);
+            this.btnEdit.TabIndex = 8;
+            this.btnEdit.Text = "Edit";
+            this.btnEdit.UseVisualStyleBackColor = true;
+            this.btnEdit.Click += new System.EventHandler(this.btnEdit_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -182,6 +195,7 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.RichTextBox txtLog;
+        private System.Windows.Forms.Button btnEdit;
     }
 }
 

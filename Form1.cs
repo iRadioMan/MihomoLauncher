@@ -263,10 +263,10 @@ namespace MihomoLauncher
                 return;
             }
 
-            string corePath = Path.Combine("cores", cmbCores.SelectedItem.ToString(), ExeName);
-            string configPath = Path.Combine("configs", cmbConfigs.SelectedItem.ToString());
+            string corePath = Path.Combine(Application.StartupPath, "cores", cmbCores.SelectedItem.ToString(), ExeName);
+            string configPath = Path.Combine(Application.StartupPath, "configs", cmbConfigs.SelectedItem.ToString());
 
-            if (!File.Exists(corePath)) { MessageBox.Show("Download core first!"); return; }
+            if (!File.Exists(corePath)) { Log($"Critical error: file {corePath} not found!"); return; }
 
             KillZombies();
 
@@ -274,12 +274,11 @@ namespace MihomoLauncher
             _mihomoProcess.StartInfo = new ProcessStartInfo
             {
                 FileName = corePath,
-                Arguments = $"-f \"{configPath}\"",
+                Arguments = $"-f \"{configPath}\" -d \"{Application.StartupPath}\"",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 CreateNoWindow = true,
-                WorkingDirectory = Path.GetDirectoryName(Application.ExecutablePath)
             };
 
             _mihomoProcess.OutputDataReceived += (s, args) => Log(args.Data);
@@ -372,7 +371,7 @@ namespace MihomoLauncher
                 e.DrawBackground();
                 string text = cmbCores.Items[e.Index].ToString();
                 bool downloaded = _versions.ContainsKey(text) && _versions[text];
-                Brush brush = downloaded ? Brushes.Green : Brushes.Red;
+                Brush brush = downloaded ? Brushes.Black : Brushes.Red;
                 e.Graphics.DrawString(text, e.Font, brush, e.Bounds);
                 e.DrawFocusRectangle();
             };
@@ -410,6 +409,11 @@ namespace MihomoLauncher
                 {
                     btnStart.Enabled = versionDownloaded;
                     chkAutoStart.Enabled = versionDownloaded;
+                    btnEdit.Enabled = true;
+                }
+                else
+                {
+                    btnEdit.Enabled = false;
                 }
             }
         }
@@ -437,6 +441,19 @@ namespace MihomoLauncher
         private void chkAutoStart_CheckedChanged(object sender, EventArgs e)
         {
             SaveSettings();
+        }
+
+        private void btnEdit_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string configPath = Path.Combine(Application.StartupPath, "configs", cmbConfigs.SelectedItem.ToString());
+                Process.Start(configPath);
+            }
+            catch (Exception ex)
+            {
+                Log($"Cannot open the config for edit: {ex.Message}");
+            }
         }
         #endregion
 
