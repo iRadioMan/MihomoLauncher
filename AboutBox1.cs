@@ -111,5 +111,10 @@ namespace MihomoLauncher
         {
             Process.Start(linkMihomo.Text);
         }
+
+        private void linkLauncher_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start(linkLauncher.Text);
+        }
     }
 }

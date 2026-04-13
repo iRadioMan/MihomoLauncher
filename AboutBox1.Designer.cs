@@ -35,6 +35,7 @@
             this.textBoxDescription = new System.Windows.Forms.TextBox();
             this.okButton = new System.Windows.Forms.Button();
             this.linkMihomo = new System.Windows.Forms.LinkLabel();
+            this.linkLauncher = new System.Windows.Forms.LinkLabel();
             this.tableLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.logoPictureBox)).BeginInit();
             this.SuspendLayout();
@@ -44,22 +45,24 @@
             this.tableLayoutPanel.ColumnCount = 2;
             this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33F));
             this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 67F));
+            this.tableLayoutPanel.Controls.Add(this.linkLauncher, 1, 3);
             this.tableLayoutPanel.Controls.Add(this.logoPictureBox, 0, 0);
             this.tableLayoutPanel.Controls.Add(this.labelProductName, 1, 0);
             this.tableLayoutPanel.Controls.Add(this.labelVersion, 1, 1);
             this.tableLayoutPanel.Controls.Add(this.labelCopyright, 1, 2);
-            this.tableLayoutPanel.Controls.Add(this.textBoxDescription, 1, 4);
-            this.tableLayoutPanel.Controls.Add(this.okButton, 1, 5);
-            this.tableLayoutPanel.Controls.Add(this.linkMihomo, 1, 3);
+            this.tableLayoutPanel.Controls.Add(this.textBoxDescription, 1, 5);
+            this.tableLayoutPanel.Controls.Add(this.okButton, 1, 6);
+            this.tableLayoutPanel.Controls.Add(this.linkMihomo, 1, 4);
             this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel.Location = new System.Drawing.Point(9, 9);
             this.tableLayoutPanel.Name = "tableLayoutPanel";
-            this.tableLayoutPanel.RowCount = 6;
+            this.tableLayoutPanel.RowCount = 7;
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 40F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
             this.tableLayoutPanel.Size = new System.Drawing.Size(417, 265);
             this.tableLayoutPanel.TabIndex = 0;
@@ -70,7 +73,7 @@
             this.logoPictureBox.Image = global::MihomoLauncher.Properties.Resources.MetaImage;
             this.logoPictureBox.Location = new System.Drawing.Point(3, 3);
             this.logoPictureBox.Name = "logoPictureBox";
-            this.tableLayoutPanel.SetRowSpan(this.logoPictureBox, 6);
+            this.tableLayoutPanel.SetRowSpan(this.logoPictureBox, 7);
             this.logoPictureBox.Size = new System.Drawing.Size(131, 259);
             this.logoPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.logoPictureBox.TabIndex = 12;
@@ -116,13 +119,13 @@
             // textBoxDescription
             // 
             this.textBoxDescription.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBoxDescription.Location = new System.Drawing.Point(143, 107);
+            this.textBoxDescription.Location = new System.Drawing.Point(143, 133);
             this.textBoxDescription.Margin = new System.Windows.Forms.Padding(6, 3, 3, 3);
             this.textBoxDescription.Multiline = true;
             this.textBoxDescription.Name = "textBoxDescription";
             this.textBoxDescription.ReadOnly = true;
             this.textBoxDescription.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxDescription.Size = new System.Drawing.Size(271, 126);
+            this.textBoxDescription.Size = new System.Drawing.Size(271, 100);
             this.textBoxDescription.TabIndex = 23;
             this.textBoxDescription.TabStop = false;
             this.textBoxDescription.Text = "Описание";
@@ -142,7 +145,7 @@
             // 
             this.linkMihomo.AutoSize = true;
             this.linkMihomo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.linkMihomo.Location = new System.Drawing.Point(144, 80);
+            this.linkMihomo.Location = new System.Drawing.Point(144, 106);
             this.linkMihomo.Margin = new System.Windows.Forms.Padding(7, 2, 3, 0);
             this.linkMihomo.Name = "linkMihomo";
             this.linkMihomo.Size = new System.Drawing.Size(270, 24);
@@ -150,6 +153,19 @@
             this.linkMihomo.TabStop = true;
             this.linkMihomo.Text = "https://github.com/MetaCubeX/mihomo";
             this.linkMihomo.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
+            // 
+            // linkLauncher
+            // 
+            this.linkLauncher.AutoSize = true;
+            this.linkLauncher.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.linkLauncher.Location = new System.Drawing.Point(144, 80);
+            this.linkLauncher.Margin = new System.Windows.Forms.Padding(7, 2, 3, 0);
+            this.linkLauncher.Name = "linkLauncher";
+            this.linkLauncher.Size = new System.Drawing.Size(270, 24);
+            this.linkLauncher.TabIndex = 26;
+            this.linkLauncher.TabStop = true;
+            this.linkLauncher.Text = "https://github.com/iRadioMan/MihomoLauncher";
+            this.linkLauncher.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLauncher_LinkClicked);
             // 
             // AboutBox1
             // 
@@ -184,5 +200,6 @@
         private System.Windows.Forms.TextBox textBoxDescription;
         private System.Windows.Forms.Button okButton;
         private System.Windows.Forms.LinkLabel linkMihomo;
+        private System.Windows.Forms.LinkLabel linkLauncher;
     }
 }

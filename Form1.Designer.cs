@@ -34,10 +34,10 @@
             this.cmbConfigs = new System.Windows.Forms.ComboBox();
             this.chkAutoStart = new System.Windows.Forms.CheckBox();
             this.btnStart = new System.Windows.Forms.Button();
-            this.txtLog = new System.Windows.Forms.TextBox();
             this.btnClearLog = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.txtLog = new System.Windows.Forms.RichTextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -102,18 +102,6 @@
             this.btnStart.UseVisualStyleBackColor = true;
             this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
-            // txtLog
-            // 
-            this.txtLog.BackColor = System.Drawing.Color.Black;
-            this.txtLog.ForeColor = System.Drawing.Color.White;
-            this.txtLog.Location = new System.Drawing.Point(15, 27);
-            this.txtLog.Multiline = true;
-            this.txtLog.Name = "txtLog";
-            this.txtLog.ReadOnly = true;
-            this.txtLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtLog.Size = new System.Drawing.Size(521, 228);
-            this.txtLog.TabIndex = 8;
-            // 
             // btnClearLog
             // 
             this.btnClearLog.Location = new System.Drawing.Point(461, 261);
@@ -141,8 +129,8 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.btnClearLog);
             this.groupBox2.Controls.Add(this.txtLog);
+            this.groupBox2.Controls.Add(this.btnClearLog);
             this.groupBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.groupBox2.Location = new System.Drawing.Point(12, 199);
             this.groupBox2.Name = "groupBox2";
@@ -150,6 +138,19 @@
             this.groupBox2.TabIndex = 11;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Core log";
+            // 
+            // txtLog
+            // 
+            this.txtLog.BackColor = System.Drawing.Color.Black;
+            this.txtLog.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.txtLog.ForeColor = System.Drawing.Color.White;
+            this.txtLog.Location = new System.Drawing.Point(10, 21);
+            this.txtLog.Name = "txtLog";
+            this.txtLog.ReadOnly = true;
+            this.txtLog.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedVertical;
+            this.txtLog.Size = new System.Drawing.Size(526, 234);
+            this.txtLog.TabIndex = 10;
+            this.txtLog.Text = "";
             // 
             // MainForm
             // 
@@ -167,7 +168,6 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -178,10 +178,10 @@
         private System.Windows.Forms.ComboBox cmbConfigs;
         private System.Windows.Forms.CheckBox chkAutoStart;
         private System.Windows.Forms.Button btnStart;
-        private System.Windows.Forms.TextBox txtLog;
         private System.Windows.Forms.Button btnClearLog;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.RichTextBox txtLog;
     }
 }
 

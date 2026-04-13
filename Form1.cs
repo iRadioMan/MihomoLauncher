@@ -338,7 +338,29 @@ namespace MihomoLauncher
                 return;
             }
 
-            txtLog.AppendText($"[{DateTime.Now:HH:mm:ss}] {text}{Environment.NewLine}");
+            txtLog.SelectionStart = txtLog.TextLength;
+            txtLog.SelectionLength = 0;
+
+            string lowerMessage = text.ToLower();
+
+            if (lowerMessage.Contains("error"))
+            {
+                txtLog.SelectionColor = Color.Red;
+                txtLog.AppendText("[ERROR] ");
+            }
+            else if (lowerMessage.Contains("warning"))
+            {
+                txtLog.SelectionColor = Color.Orange;
+                txtLog.AppendText("[WARNING] ");
+            }
+            else
+            {
+                txtLog.AppendText("[INFO] ");
+            }
+
+            txtLog.SelectionColor = txtLog.ForeColor;
+            txtLog.AppendText($"{text}{Environment.NewLine}");
+            txtLog.ScrollToCaret();
         }
 
         private void SetupCustomCombo()
@@ -362,7 +384,7 @@ namespace MihomoLauncher
 
             if (_isRunning)
             {
-                _status = $"🟢 Running ({DateTime.Now - _startTime:mm\\:ss})";
+                _status = $"🟢 Running ({DateTime.Now - _startTime:hh\\:mm\\:ss})";
             }
             else
             {
