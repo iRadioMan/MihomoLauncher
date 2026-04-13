@@ -306,10 +306,6 @@ namespace MihomoLauncher
                 catch (Exception ex) { Log($"Cannot kill core process: {ex.Message}"); }
 
                 _mihomoProcess = null;
-                btnStart.Text = "START";
-                cmbCores.Enabled = true;
-                cmbConfigs.Enabled = true;
-                _trayIcon.Icon = Properties.Resources.Meta;
                 Log("Core stopped.");
             }
         }
@@ -371,6 +367,10 @@ namespace MihomoLauncher
             else
             {
                 _status = "🔴 Stopped";
+                btnStart.Text = "START";
+                cmbCores.Enabled = true;
+                cmbConfigs.Enabled = true;
+                _trayIcon.Icon = Properties.Resources.Meta;
             }
 
             this.Text = $"Mihomo Launcher | {_status}";
