@@ -145,7 +145,7 @@ namespace MihomoLauncher
         #region GitHub API & Downloading
         private async Task RefreshVersions()
         {
-            this.Text = "Mihomo Launcher | 🌐 Fetching versions...";
+            this.Text = $"Mihomo Launcher v{Application.ProductVersion} | 🌐 Fetching versions...";
             try
             {
                 using (var client = new HttpClient())
@@ -199,7 +199,7 @@ namespace MihomoLauncher
             cmbCores.DataSource = _versions.Keys.ToList();
             cmbCores.Enabled = true;
 
-            this.Text = "Mihomo Launcher";
+            this.Text = $"Mihomo Launcher v{Application.ProductVersion}";
         }
 
         private async void btnDownload_Click(object sender, EventArgs e)
@@ -394,7 +394,7 @@ namespace MihomoLauncher
                 _trayIcon.Icon = Properties.Resources.Meta;
             }
 
-            this.Text = $"Mihomo Launcher | {_status}";
+            this.Text = $"Mihomo Launcher v{Application.ProductVersion} | {_status}";
             _trayIcon.Text = $"Mihomo Launcher\nCore: {cmbCores.SelectedItem}\nStatus: {_status}";
         }
 
