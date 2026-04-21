@@ -35,6 +35,7 @@ namespace MihomoLauncher
 
         private Dictionary<string, bool> _versions = new Dictionary<string, bool>();
         private string latestVersion;
+        private string newLatestVersion;
 
         public MainForm()
         {
@@ -133,11 +134,23 @@ namespace MihomoLauncher
                 if (key == null) return;
                 string lastCore = key.GetValue("LastCore")?.ToString();
                 string lastConfig = key.GetValue("LastConfig")?.ToString();
-                latestVersion = (key.GetValue("LatestVersion")?.ToString() ?? latestVersion); // For first program start (no data)
+                latestVersion = (key.GetValue("LatestVersion")?.ToString() ?? latestVersion);
                 chkAutoStart.Checked = Convert.ToInt32(key.GetValue("AutoStart") ?? 0) == 1;
 
                 if (!string.IsNullOrEmpty(lastCore)) cmbCores.SelectedItem = lastCore;
                 if (!string.IsNullOrEmpty(lastConfig)) cmbConfigs.SelectedItem = lastConfig;
+            }
+
+            if (latestVersion == null) // For first program start (no data)
+            {
+                latestVersion = newLatestVersion;
+            }
+
+            if (newLatestVersion != latestVersion)
+            {
+                latestVersion = newLatestVersion;
+
+                Log($"NEW VERSION AVAILABLE: {latestVersion}");
             }
         }
         #endregion
@@ -164,19 +177,7 @@ namespace MihomoLauncher
                         _versions.Add(ver, isDownloaded);
                     }
 
-                    string newLatestVersion = releases[1]["tag_name"].ToString(); // Ignore Alpha release [0]
-
-                    if (latestVersion == null) // For first program start (no data)
-                    {
-                        latestVersion = newLatestVersion;
-                    }
-
-                    if (newLatestVersion != latestVersion) 
-                    { 
-                        Log($"NEW VERSION AVAILABLE: {latestVersion}");
-
-                        latestVersion = newLatestVersion;
-                    }
+                    newLatestVersion = releases[1]["tag_name"].ToString(); // Ignore Alpha release [0]
                 }
             }
             catch (Exception ex) 

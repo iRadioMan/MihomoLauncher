@@ -36,9 +36,9 @@
             this.btnStart = new System.Windows.Forms.Button();
             this.btnClearLog = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btnEdit = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.txtLog = new System.Windows.Forms.RichTextBox();
-            this.btnEdit = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -129,6 +129,17 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Management";
             // 
+            // btnEdit
+            // 
+            this.btnEdit.Enabled = false;
+            this.btnEdit.Location = new System.Drawing.Point(370, 86);
+            this.btnEdit.Name = "btnEdit";
+            this.btnEdit.Size = new System.Drawing.Size(105, 28);
+            this.btnEdit.TabIndex = 8;
+            this.btnEdit.Text = "Edit";
+            this.btnEdit.UseVisualStyleBackColor = true;
+            this.btnEdit.Click += new System.EventHandler(this.btnEdit_Click);
+            // 
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.txtLog);
@@ -139,7 +150,7 @@
             this.groupBox2.Size = new System.Drawing.Size(546, 293);
             this.groupBox2.TabIndex = 11;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Core log";
+            this.groupBox2.Text = "Log";
             // 
             // txtLog
             // 
@@ -153,17 +164,6 @@
             this.txtLog.Size = new System.Drawing.Size(526, 234);
             this.txtLog.TabIndex = 10;
             this.txtLog.Text = "";
-            // 
-            // btnEdit
-            // 
-            this.btnEdit.Enabled = false;
-            this.btnEdit.Location = new System.Drawing.Point(370, 86);
-            this.btnEdit.Name = "btnEdit";
-            this.btnEdit.Size = new System.Drawing.Size(105, 28);
-            this.btnEdit.TabIndex = 8;
-            this.btnEdit.Text = "Edit";
-            this.btnEdit.UseVisualStyleBackColor = true;
-            this.btnEdit.Click += new System.EventHandler(this.btnEdit_Click);
             // 
             // MainForm
             // 
