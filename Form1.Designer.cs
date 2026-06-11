@@ -38,7 +38,10 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.btnEdit = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.btnClearCache = new System.Windows.Forms.Button();
             this.txtLog = new System.Windows.Forms.RichTextBox();
+            this.btnClearGeo = new System.Windows.Forms.Button();
+            this.btnOpenConfigsDir = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -49,7 +52,7 @@
             this.cmbCores.Enabled = false;
             this.cmbCores.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.cmbCores.FormattingEnabled = true;
-            this.cmbCores.Location = new System.Drawing.Point(71, 41);
+            this.cmbCores.Location = new System.Drawing.Point(92, 41);
             this.cmbCores.Name = "cmbCores";
             this.cmbCores.Size = new System.Drawing.Size(284, 28);
             this.cmbCores.TabIndex = 0;
@@ -58,7 +61,7 @@
             // btnDownload
             // 
             this.btnDownload.Enabled = false;
-            this.btnDownload.Location = new System.Drawing.Point(370, 41);
+            this.btnDownload.Location = new System.Drawing.Point(391, 41);
             this.btnDownload.Name = "btnDownload";
             this.btnDownload.Size = new System.Drawing.Size(105, 28);
             this.btnDownload.TabIndex = 1;
@@ -72,7 +75,7 @@
             this.cmbConfigs.Enabled = false;
             this.cmbConfigs.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.cmbConfigs.FormattingEnabled = true;
-            this.cmbConfigs.Location = new System.Drawing.Point(71, 86);
+            this.cmbConfigs.Location = new System.Drawing.Point(92, 86);
             this.cmbConfigs.Name = "cmbConfigs";
             this.cmbConfigs.Size = new System.Drawing.Size(284, 28);
             this.cmbConfigs.TabIndex = 4;
@@ -83,7 +86,7 @@
             this.chkAutoStart.AutoSize = true;
             this.chkAutoStart.Enabled = false;
             this.chkAutoStart.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.chkAutoStart.Location = new System.Drawing.Point(407, 133);
+            this.chkAutoStart.Location = new System.Drawing.Point(380, 129);
             this.chkAutoStart.Name = "chkAutoStart";
             this.chkAutoStart.Size = new System.Drawing.Size(129, 19);
             this.chkAutoStart.TabIndex = 6;
@@ -95,7 +98,7 @@
             // 
             this.btnStart.Enabled = false;
             this.btnStart.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.btnStart.Location = new System.Drawing.Point(213, 124);
+            this.btnStart.Location = new System.Drawing.Point(174, 124);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(121, 28);
             this.btnStart.TabIndex = 7;
@@ -105,16 +108,17 @@
             // 
             // btnClearLog
             // 
-            this.btnClearLog.Location = new System.Drawing.Point(461, 261);
+            this.btnClearLog.Location = new System.Drawing.Point(10, 261);
             this.btnClearLog.Name = "btnClearLog";
-            this.btnClearLog.Size = new System.Drawing.Size(75, 23);
+            this.btnClearLog.Size = new System.Drawing.Size(93, 25);
             this.btnClearLog.TabIndex = 9;
-            this.btnClearLog.Text = "Clear";
+            this.btnClearLog.Text = "Clear log";
             this.btnClearLog.UseVisualStyleBackColor = true;
             this.btnClearLog.Click += new System.EventHandler(this.btnClearLog_Click);
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.btnOpenConfigsDir);
             this.groupBox1.Controls.Add(this.btnEdit);
             this.groupBox1.Controls.Add(this.cmbConfigs);
             this.groupBox1.Controls.Add(this.cmbCores);
@@ -132,7 +136,7 @@
             // btnEdit
             // 
             this.btnEdit.Enabled = false;
-            this.btnEdit.Location = new System.Drawing.Point(370, 86);
+            this.btnEdit.Location = new System.Drawing.Point(391, 86);
             this.btnEdit.Name = "btnEdit";
             this.btnEdit.Size = new System.Drawing.Size(105, 28);
             this.btnEdit.TabIndex = 8;
@@ -142,15 +146,27 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.btnClearGeo);
+            this.groupBox2.Controls.Add(this.btnClearCache);
             this.groupBox2.Controls.Add(this.txtLog);
             this.groupBox2.Controls.Add(this.btnClearLog);
             this.groupBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.groupBox2.Location = new System.Drawing.Point(12, 199);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(546, 293);
+            this.groupBox2.Size = new System.Drawing.Size(546, 296);
             this.groupBox2.TabIndex = 11;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Log";
+            // 
+            // btnClearCache
+            // 
+            this.btnClearCache.Location = new System.Drawing.Point(304, 261);
+            this.btnClearCache.Name = "btnClearCache";
+            this.btnClearCache.Size = new System.Drawing.Size(97, 25);
+            this.btnClearCache.TabIndex = 11;
+            this.btnClearCache.Text = "Clear cache";
+            this.btnClearCache.UseVisualStyleBackColor = true;
+            this.btnClearCache.Click += new System.EventHandler(this.btnClearCache_Click);
             // 
             // txtLog
             // 
@@ -165,11 +181,34 @@
             this.txtLog.TabIndex = 10;
             this.txtLog.Text = "";
             // 
+            // btnClearGeo
+            // 
+            this.btnClearGeo.Location = new System.Drawing.Point(407, 261);
+            this.btnClearGeo.Name = "btnClearGeo";
+            this.btnClearGeo.Size = new System.Drawing.Size(129, 25);
+            this.btnClearGeo.TabIndex = 12;
+            this.btnClearGeo.Text = "Clear geoassets";
+            this.btnClearGeo.UseVisualStyleBackColor = true;
+            this.btnClearGeo.Click += new System.EventHandler(this.btnClearGeo_Click);
+            // 
+            // btnOpenConfigsDir
+            // 
+            this.btnOpenConfigsDir.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOpenConfigsDir.Location = new System.Drawing.Point(46, 86);
+            this.btnOpenConfigsDir.Name = "btnOpenConfigsDir";
+            this.btnOpenConfigsDir.Size = new System.Drawing.Size(31, 28);
+            this.btnOpenConfigsDir.TabIndex = 9;
+            this.btnOpenConfigsDir.Text = "d";
+            this.btnOpenConfigsDir.UseVisualStyleBackColor = true;
+            this.btnOpenConfigsDir.Click += new System.EventHandler(this.btnOpenConfigsDir_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(570, 504);
+            this.ClientSize = new System.Drawing.Size(570, 505);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -196,6 +235,9 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.RichTextBox txtLog;
         private System.Windows.Forms.Button btnEdit;
+        private System.Windows.Forms.Button btnClearCache;
+        private System.Windows.Forms.Button btnClearGeo;
+        private System.Windows.Forms.Button btnOpenConfigsDir;
     }
 }
 

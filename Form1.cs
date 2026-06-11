@@ -255,6 +255,8 @@ namespace MihomoLauncher
 
             cmbCores.Enabled = false;
             cmbConfigs.Enabled = false;
+            btnClearCache.Enabled = false;
+            btnClearGeo.Enabled = false;
 
             SaveSettings();
 
@@ -392,6 +394,8 @@ namespace MihomoLauncher
                 btnStart.Text = "START";
                 cmbCores.Enabled = true;
                 cmbConfigs.Enabled = true;
+                btnClearCache.Enabled = true;
+                btnClearGeo.Enabled = true;
                 _trayIcon.Icon = Properties.Resources.Meta;
             }
 
@@ -455,6 +459,48 @@ namespace MihomoLauncher
             {
                 Log($"Cannot open the config for edit: {ex.Message}");
             }
+        }
+
+        private void btnClearCache_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Are you sure?", "Confirmation", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                try
+                {
+                    File.Delete(@"cache.db");
+                    Directory.Delete(@"proxies", true);
+                    Directory.Delete(@"rules", true);
+
+                    Log($"Successfully cleared cache");
+                }
+                catch (Exception ex)
+                {
+                    Log($"Cannot clear cache: {ex.Message}");
+                }
+            }
+        }
+
+        private void btnClearGeo_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Are you sure?", "Confirmation", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                try
+                {
+                    File.Delete(@"GeoIP.dat");
+                    File.Delete(@"GeoSite.dat");
+
+                    Log($"Successfully cleared geoassets");
+                }
+                catch (Exception ex)
+                {
+                    Log($"Cannot clear geoassets: {ex.Message}");
+                }
+            }
+        }
+
+        private void btnOpenConfigsDir_Click(object sender, EventArgs e)
+        {
+            Process.Start(@"configs");
         }
         #endregion
 
