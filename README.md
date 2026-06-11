@@ -14,3 +14,6 @@ Feel free to open issues or submit pull requests.
 - Select a core and click the "Download" button
 - Select a configuration and click the "Start" button
 - You can close the main window — the application will continue running in the system tray
+
+##
+![Program screenshot](screenshot.jpg)
