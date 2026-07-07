@@ -131,19 +131,21 @@ namespace MihomoLauncher
         {
             using (var key = Registry.CurrentUser.OpenSubKey(RegistryPath))
             {
-                if (key == null) return;
-                string lastCore = key.GetValue("LastCore")?.ToString();
-                string lastConfig = key.GetValue("LastConfig")?.ToString();
-                latestVersion = (key.GetValue("LatestVersion")?.ToString() ?? latestVersion);
-                chkAutoStart.Checked = Convert.ToInt32(key.GetValue("AutoStart") ?? 0) == 1;
+                if (key != null)
+                {
+                    string lastCore = key.GetValue("LastCore")?.ToString();
+                    string lastConfig = key.GetValue("LastConfig")?.ToString();
+                    latestVersion = (key.GetValue("LatestVersion")?.ToString() ?? latestVersion);
+                    chkAutoStart.Checked = Convert.ToInt32(key.GetValue("AutoStart") ?? 0) == 1;
 
-                if (!string.IsNullOrEmpty(lastCore)) cmbCores.SelectedItem = lastCore;
-                if (!string.IsNullOrEmpty(lastConfig)) cmbConfigs.SelectedItem = lastConfig;
-            }
-
-            if (latestVersion == null) // For first program start (no data)
-            {
-                latestVersion = newLatestVersion;
+                    if (!string.IsNullOrEmpty(lastCore)) cmbCores.SelectedItem = lastCore;
+                    if (!string.IsNullOrEmpty(lastConfig)) cmbConfigs.SelectedItem = lastConfig;
+                }
+                else // For first program start (no data)
+                {
+                    latestVersion = newLatestVersion;
+                    cmbCores.SelectedIndex = 1; // Ignore Alpha release [0]
+                }
             }
 
             if (newLatestVersion != latestVersion)
