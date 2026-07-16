@@ -147,8 +147,8 @@ namespace MihomoLauncher
                     cmbCores.SelectedIndex = 1; // Ignore Alpha release [0]
                 }
             }
-
-            if (newLatestVersion != latestVersion)
+            
+            if (newLatestVersion != null && newLatestVersion != latestVersion)
             {
                 latestVersion = newLatestVersion;
 
@@ -171,9 +171,9 @@ namespace MihomoLauncher
 
                     _versions.Clear();
 
-                    foreach (var release in releases)
+                    for (var i = 0; i < 15; ++i)
                     {
-                        string ver = release["tag_name"].ToString();
+                        string ver = releases[i]["tag_name"].ToString();
                         var path = Path.Combine("cores", ver, ExeName);
                         bool isDownloaded = File.Exists(path);
                         _versions.Add(ver, isDownloaded);
