@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Net;
 using Newtonsoft.Json;
 using System.Net.Http;
 using Microsoft.Win32;
@@ -23,6 +24,7 @@ namespace MihomoLauncher
         private const string RegistryPath = @"Software\MihomoLauncher";
         private const string StartupPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
         private const string AppName = "MihomoLauncher";
+        private static readonly HttpClient HttpClient = CreateHttpClient();
         private string ExeName = "mihomo-windows-amd64-v{cpu}.exe";
         private string Url = "https://github.com/MetaCubeX/mihomo/releases/download/{version}/mihomo-windows-amd64-v{cpu}-{version}.zip";
 
@@ -36,6 +38,18 @@ namespace MihomoLauncher
         private Dictionary<string, bool> _versions = new Dictionary<string, bool>();
         private string latestVersion;
         private string newLatestVersion;
+        private string AppDirectory => Application.StartupPath;
+
+        private static HttpClient CreateHttpClient()
+        {
+            var handler = new HttpClientHandler
+            {
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+            };
+            var client = new HttpClient(handler);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("MihomoLauncher-App");
+            return client;
+        }
 
         public MainForm()
         {
@@ -63,8 +77,8 @@ namespace MihomoLauncher
 
         private void InitializeFolders()
         {
-            Directory.CreateDirectory("cores");
-            Directory.CreateDirectory("configs");
+            Directory.CreateDirectory(Path.Combine(AppDirectory, "cores"));
+            Directory.CreateDirectory(Path.Combine(AppDirectory, "configs"));
         }
 
         private async void MainForm_Load(object sender, EventArgs e)
@@ -85,9 +99,9 @@ namespace MihomoLauncher
         #region Registry & Settings
         private void RefreshConfigs()
         {
-            foreach (var file in Directory.GetFiles(@"configs"))
+            foreach (var file in Directory.GetFiles(Path.Combine(AppDirectory, "configs")))
             {
-                if (file.EndsWith(".yaml"))
+                if (string.Equals(Path.GetExtension(file), ".yaml", StringComparison.OrdinalIgnoreCase))
                 {
                     cmbConfigs.Items.Add(Path.GetFileName(file));
                 }
@@ -111,7 +125,7 @@ namespace MihomoLauncher
                 key.SetValue("LastCore", cmbCores.SelectedItem?.ToString() ?? "");
                 key.SetValue("LastConfig", cmbConfigs.SelectedItem?.ToString() ?? "");
                 key.SetValue("AutoStart", chkAutoStart.Checked ? 1 : 0);
-                key.SetValue("LatestVersion", latestVersion.ToString() ?? "");
+                key.SetValue("LatestVersion", latestVersion ?? "");
             }
 
             using (var key = Registry.CurrentUser.CreateSubKey(StartupPath))
@@ -136,7 +150,9 @@ namespace MihomoLauncher
                     string lastCore = key.GetValue("LastCore")?.ToString();
                     string lastConfig = key.GetValue("LastConfig")?.ToString();
                     latestVersion = (key.GetValue("LatestVersion")?.ToString() ?? latestVersion);
-                    chkAutoStart.Checked = Convert.ToInt32(key.GetValue("AutoStart") ?? 0) == 1;
+                    int autoStart;
+                    int.TryParse(key.GetValue("AutoStart")?.ToString(), out autoStart);
+                    chkAutoStart.Checked = autoStart == 1;
 
                     if (!string.IsNullOrEmpty(lastCore)) cmbCores.SelectedItem = lastCore;
                     if (!string.IsNullOrEmpty(lastConfig)) cmbConfigs.SelectedItem = lastConfig;
@@ -144,7 +160,7 @@ namespace MihomoLauncher
                 else // For first program start (no data)
                 {
                     latestVersion = newLatestVersion;
-                    cmbCores.SelectedIndex = 1; // Ignore Alpha release [0]
+                    cmbCores.SelectedIndex = cmbCores.Items.Count > 0 ? 0 : -1;
                 }
             }
             
@@ -161,40 +177,67 @@ namespace MihomoLauncher
         private async Task RefreshVersions()
         {
             this.Text = $"Mihomo Launcher v{Application.ProductVersion} | 🌐 Fetching versions...";
+            newLatestVersion = null;
             try
             {
-                using (var client = new HttpClient())
+                // Usually one page provides 15 stable releases plus the Alpha entry.
+                // Fetch another page only if Alpha entries leave the first page short.
+                const int pageSize = 16;
+                var stableReleases = new List<JObject>();
+                for (int page = 1; stableReleases.Count < 15; page++)
                 {
-                    client.DefaultRequestHeaders.Add("User-Agent", "MihomoLauncher-App");
-                    var response = await client.GetStringAsync("https://api.github.com/repos/MetaCubeX/mihomo/releases");
-                    var releases = JArray.Parse(response);
-
-                    _versions.Clear();
-
-                    for (var i = 0; i < 15; ++i)
+                    string url = $"https://api.github.com/repos/MetaCubeX/mihomo/releases?per_page={pageSize}&page={page}";
+                    string response;
+                    using (var timeout = new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(15)))
+                    using (var apiResponse = await HttpClient.GetAsync(url, timeout.Token))
                     {
-                        string ver = releases[i]["tag_name"].ToString();
-                        var path = Path.Combine("cores", ver, ExeName);
-                        bool isDownloaded = File.Exists(path);
-                        _versions.Add(ver, isDownloaded);
+                        apiResponse.EnsureSuccessStatusCode();
+                        response = await apiResponse.Content.ReadAsStringAsync();
+                    }
+                    var pageReleases = JArray.Parse(response).OfType<JObject>().ToList();
+                    if (pageReleases.Count == 0) break;
+
+                    foreach (var release in pageReleases)
+                    {
+                        if (!IsAlphaRelease(release) &&
+                            !string.IsNullOrWhiteSpace(release["tag_name"]?.ToString()))
+                        {
+                            stableReleases.Add(release);
+                            if (stableReleases.Count == 15) break;
+                        }
                     }
 
-                    newLatestVersion = releases[1]["tag_name"].ToString(); // Ignore Alpha release [0]
+                    if (pageReleases.Count < pageSize) break;
                 }
+
+                if (stableReleases.Count == 0)
+                    throw new InvalidDataException("GitHub returned no stable releases.");
+
+                // GitHub's release order can change. Filter Alpha before choosing latest.
+                _versions.Clear();
+                foreach (var release in stableReleases)
+                {
+                    string ver = release["tag_name"].ToString();
+                    var path = Path.Combine(AppDirectory, "cores", ver, ExeName);
+                    _versions[ver] = File.Exists(path);
+                }
+
+                newLatestVersion = stableReleases.FirstOrDefault()?["tag_name"]?.ToString();
             }
             catch (Exception ex) 
             { 
                 Log($"Error fetching versions from GitHub: {ex.Message}");
                 Log($"Checking locally available versions...");
 
-                foreach (var dir in Directory.GetDirectories("cores"))
+                _versions.Clear();
+                foreach (var dir in Directory.GetDirectories(Path.Combine(AppDirectory, "cores")))
                 {
                     var version = Path.GetFileName(dir);
 
-                    if (File.Exists(Path.Combine("cores", version, ExeName)))
+                    if (File.Exists(Path.Combine(AppDirectory, "cores", version, ExeName)))
                     {
                         Log($"Local version found: {version}");
-                        _versions.Add(version, true);
+                        _versions[version] = true;
                     }
                 }
             }
@@ -205,48 +248,75 @@ namespace MihomoLauncher
             this.Text = $"Mihomo Launcher v{Application.ProductVersion}";
         }
 
+        private static bool IsAlphaRelease(JObject release)
+        {
+            string tag = release["tag_name"]?.ToString() ?? string.Empty;
+            string name = release["name"]?.ToString() ?? string.Empty;
+            return tag.IndexOf("Prerelease-Alpha", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("Prerelease-Alpha", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
         private async void btnDownload_Click(object sender, EventArgs e)
         {
             SaveSettings();
             _statusTimer.Stop();
 
-            string version = cmbCores.SelectedItem.ToString();
+            string version = cmbCores.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(version))
+            {
+                _statusTimer.Start();
+                return;
+            }
             string url = Url.Replace("{version}", version);
 
             btnDownload.Enabled = false;
             cmbCores.Enabled = false;
-            await DownloadCore(url, version);
-            await RefreshVersions();
-            LoadSettings();
-            _statusTimer.Start();
-            btnDownload.Enabled = true;
-            cmbCores.Enabled = true;
+            try
+            {
+                if (await DownloadCore(url, version))
+                {
+                    _versions[version] = true;
+                    cmbCores.Refresh();
+                    UpdateButtons();
+                }
+            }
+            finally
+            {
+                _statusTimer.Start();
+                cmbCores.Enabled = true;
+                UpdateButtons();
+            }
         }
 
-        private async Task DownloadCore(string url, string version)
+        private async Task<bool> DownloadCore(string url, string version)
         {
             Log($"Starting download {version}...");
 
-            var destinationPath = @"cores\" + version + @"\";
-            var file = destinationPath + "mihomo.zip";
-            Directory.CreateDirectory(destinationPath);
+            var destinationPath = Path.Combine(AppDirectory, "cores", version);
+            var file = Path.Combine(destinationPath, "mihomo.zip");
 
             try
             {
-                using (var client = new HttpClient())
-                {
-                    client.DefaultRequestHeaders.Add("User-Agent", "MihomoLauncher-App");
-                    var downloadStream = await client.GetStreamAsync(url);
-                    using (var fileStream = new FileStream(file, FileMode.Create, FileAccess.Write))
-                        await downloadStream.CopyToAsync(fileStream);
+                Directory.CreateDirectory(destinationPath);
+                using (var downloadStream = await HttpClient.GetStreamAsync(url))
+                using (var fileStream = new FileStream(file, FileMode.Create, FileAccess.Write))
+                    await downloadStream.CopyToAsync(fileStream);
 
-                    ZipFile.ExtractToDirectory(file, destinationPath);
-                    File.Delete(file);
+                ZipFile.ExtractToDirectory(file, destinationPath);
+                File.Delete(file);
 
-                    Log($"Download successful");
-                }
+                if (!File.Exists(Path.Combine(destinationPath, ExeName)))
+                    throw new InvalidDataException("The downloaded archive does not contain the expected core executable.");
+
+                Log($"Download successful");
+                return true;
             }
-            catch (Exception ex) { Log($"Error downloading version: {ex.Message}"); }
+            catch (Exception ex)
+            {
+                try { if (File.Exists(file)) File.Delete(file); } catch { }
+                Log($"Error downloading version: {ex.Message}");
+                return false;
+            }
         }
         #endregion
 
@@ -255,48 +325,65 @@ namespace MihomoLauncher
         {
             if (!btnStart.Enabled) return; // Double check if button is enabled (ex: for tray controls)
 
-            cmbCores.Enabled = false;
-            cmbConfigs.Enabled = false;
-            btnClearCache.Enabled = false;
-            btnClearGeo.Enabled = false;
-
-            SaveSettings();
-
             if (_mihomoProcess != null && !_mihomoProcess.HasExited)
             {
                 StopCore();
                 return;
             }
 
-            string corePath = Path.Combine(Application.StartupPath, "cores", cmbCores.SelectedItem.ToString(), ExeName);
-            string configPath = Path.Combine(Application.StartupPath, "configs", cmbConfigs.SelectedItem.ToString());
+            if (cmbCores.SelectedItem == null || cmbConfigs.SelectedItem == null)
+            {
+                Log("Select a core and a configuration before starting.");
+                return;
+            }
+
+            string corePath = Path.Combine(AppDirectory, "cores", cmbCores.SelectedItem.ToString(), ExeName);
+            string configPath = Path.Combine(AppDirectory, "configs", cmbConfigs.SelectedItem.ToString());
 
             if (!File.Exists(corePath)) { Log($"Critical error: file {corePath} not found!"); return; }
+            if (!File.Exists(configPath)) { Log($"Critical error: config {configPath} not found!"); return; }
+
+            cmbCores.Enabled = false;
+            cmbConfigs.Enabled = false;
+            btnClearCache.Enabled = false;
+            btnClearGeo.Enabled = false;
+            SaveSettings();
 
             KillZombies();
 
-            _mihomoProcess = new Process();
-            _mihomoProcess.StartInfo = new ProcessStartInfo
+            try
             {
-                FileName = corePath,
-                Arguments = $"-f \"{configPath}\" -d \"{Application.StartupPath}\"",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true,
-            };
+                _mihomoProcess = new Process();
+                _mihomoProcess.StartInfo = new ProcessStartInfo
+                {
+                    FileName = corePath,
+                    Arguments = $"-f \"{configPath}\" -d \"{AppDirectory}\"",
+                    WorkingDirectory = AppDirectory,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true,
+                };
 
-            _mihomoProcess.OutputDataReceived += (s, args) => Log(args.Data);
-            _mihomoProcess.ErrorDataReceived += (s, args) => Log(args.Data);
+                _mihomoProcess.OutputDataReceived += (s, args) => Log(args.Data);
+                _mihomoProcess.ErrorDataReceived += (s, args) => Log(args.Data);
 
-            _mihomoProcess.Start();
-            _mihomoProcess.BeginOutputReadLine();
-            _mihomoProcess.BeginErrorReadLine();
+                _mihomoProcess.Start();
+                _mihomoProcess.BeginOutputReadLine();
+                _mihomoProcess.BeginErrorReadLine();
 
-            _startTime = DateTime.Now;
-            btnStart.Text = "STOP";
-            _trayIcon.Icon = Properties.Resources.Meta_active;
-            Log("Core started.");
+                _startTime = DateTime.Now;
+                btnStart.Text = "STOP";
+                _trayIcon.Icon = Properties.Resources.Meta_active;
+                Log("Core started.");
+            }
+            catch (Exception ex)
+            {
+                _mihomoProcess?.Dispose();
+                _mihomoProcess = null;
+                Log($"Cannot start core: {ex.Message}");
+                UpdateStatus();
+            }
         }
 
         private void StopCore()
@@ -309,6 +396,7 @@ namespace MihomoLauncher
                 }
                 catch (Exception ex) { Log($"Cannot kill core process: {ex.Message}"); }
 
+                _mihomoProcess.Dispose();
                 _mihomoProcess = null;
                 Log("Core stopped.");
             }
@@ -316,17 +404,28 @@ namespace MihomoLauncher
 
         private void KillZombies()
         {
-            var currentVersion = cmbCores.SelectedItem?.ToString();
-            var processes = Process.GetProcesses()
-                                   .Where(p => p.ProcessName.StartsWith("mihomo-", StringComparison.OrdinalIgnoreCase));
-
-            foreach (var p in processes)
+            Process[] processes;
+            try
             {
+                processes = Process.GetProcesses();
+            }
+            catch (Exception ex)
+            {
+                Log($"Cannot enumerate processes: {ex.Message}");
+                return;
+            }
+
+            foreach (var process in processes)
+            {
+                string processName = "unknown";
                 try
-                { 
-                    p.Kill(); 
-                } 
-                catch (Exception ex) { Log($"Cannot kill process {p.ProcessName}: {ex.Message}"); }
+                {
+                    processName = process.ProcessName;
+                    if (processName.StartsWith("mihomo-", StringComparison.OrdinalIgnoreCase))
+                        process.Kill();
+                }
+                catch (Exception ex) { Log($"Cannot stop process {processName}: {ex.Message}"); }
+                finally { process.Dispose(); }
             }
         }
         #endregion
@@ -469,9 +568,9 @@ namespace MihomoLauncher
             {
                 try
                 {
-                    File.Delete(@"cache.db");
-                    Directory.Delete(@"proxies", true);
-                    Directory.Delete(@"rules", true);
+                    DeleteFileIfPresent(Path.Combine(AppDirectory, "cache.db"));
+                    DeleteDirectoryIfPresent(Path.Combine(AppDirectory, "proxies"));
+                    DeleteDirectoryIfPresent(Path.Combine(AppDirectory, "rules"));
 
                     Log($"Successfully cleared cache");
                 }
@@ -488,8 +587,8 @@ namespace MihomoLauncher
             {
                 try
                 {
-                    File.Delete(@"GeoIP.dat");
-                    File.Delete(@"GeoSite.dat");
+                    DeleteFileIfPresent(Path.Combine(AppDirectory, "GeoIP.dat"));
+                    DeleteFileIfPresent(Path.Combine(AppDirectory, "GeoSite.dat"));
 
                     Log($"Successfully cleared geoassets");
                 }
@@ -502,7 +601,17 @@ namespace MihomoLauncher
 
         private void btnOpenConfigsDir_Click(object sender, EventArgs e)
         {
-            Process.Start(@"configs");
+            Process.Start(Path.Combine(AppDirectory, "configs"));
+        }
+
+        private static void DeleteFileIfPresent(string path)
+        {
+            if (File.Exists(path)) File.Delete(path);
+        }
+
+        private static void DeleteDirectoryIfPresent(string path)
+        {
+            if (Directory.Exists(path)) Directory.Delete(path, true);
         }
         #endregion
 
