@@ -463,7 +463,11 @@ namespace MihomoLauncher
 
             txtLog.SelectionColor = txtLog.ForeColor;
             txtLog.AppendText($"{text}{Environment.NewLine}");
-            txtLog.ScrollToCaret();
+
+            if (chkScrollToCaret.Checked)
+            {
+                txtLog.ScrollToCaret();
+            }
         }
 
         private void SetupCustomCombo()
